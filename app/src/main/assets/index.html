@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Call</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />	
+    <script type="text/javascript" src="js/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="js/lodash/lodash.js"></script>
+    <style>
+		@font-face {
+			font-family: 'Alpha Digital';			
+			src:url('font/AlphaDigital.woff') format('woff');										
+		} 
+        .bg-gif {            
+			width: 100%;
+			height: 100vh;
+            
+            background-image: url('img/up2.gif');
+            background-size: cover;
+			background-position: center;
+        }
+
+		.btn:focus,.btn:active {
+           outline: none !important;
+           box-shadow: none;
+        }
+
+        .bg-gif-stop {
+			width: 100%;
+			height: 100vh;		
+            
+            background-image: url('img/up.png');
+            background-size: cover;
+			background-position: center;
+        }
+
+        .flex-fill {
+            flex:1 1 auto;
+        }
+    </style>
+</head>
+<script type="text/javascript">
+    var _gGetStateHandler;
+
+    var _gAudio = new Audio('sound/notice.wav');
+    _gAudio.loop = false;
+    _gAudio.volume = 1;
+
+    var _getState = function getState() {
+		Android.getElevatorState();
+        //TestCode
+        //callBack_getState(Math.floor(Math.random() * 28), 'up');
+    };
+
+    $(document).ready(function() {
+        _getState;
+        _gGetStateHandler =  _.debounce(_getState, 500);
+        _gGetStateHandler();
+    });
+
+    function callBack_getState(floor, way) {
+		$('#floorDisplay').text(floor);
+        if($('.spinner-border.text-warning').is(':visible')) {
+            $('.spinner-border.text-warning').fadeOut(1000, function() {
+				$('#floorDisplay').fadeIn(1000);    
+            });			
+        }        
+        _gGetStateHandler();
+        if('24' == floor && 'down' == way) {
+            if($('#bgDiv').hasClass('bg-gif')) {
+                _gAudio.play();
+                _gAudio.play();
+            }
+            $('#bgDiv').addClass('bg-gif-stop');
+            $('#bgDiv').removeClass('bg-gif');
+            $('button.btn').show();
+        }
+    }
+
+	async function doCall() {	            
+		$('button.btn > img').effect("bounce", "slow",function() {
+			$('button.btn').fadeOut(500, function() {
+				Android.getCall();
+			});
+		});        
+	}
+
+	function callBack_getCall(result) {
+        if(result) {
+            // 저사양 일 경우 깜빡임 방지
+			$('#bgDiv').addClass('bg-gif').promise().then(function() {
+				$('#bgDiv').removeClass('bg-gif-stop').promise().then(function() {
+					// 엘베 호출 알림
+					$('.toast').toast('show');
+				});
+			});
+        } else {
+            $('button.btn').fadeIn(1000);
+        }
+    }
+	
+	
+</script>
+<body style="overflow: hidden;">
+<div class="container-fluid main_container text-white d-flex" style="min-height: 100vh;">
+    <div class="row flex-fill">
+        <div class="col h-100 bg-gif-stop" id="bgDiv">
+            <div class="row h-75">
+                <div class="col-sm-12">
+                    <div>
+                        <div class="text-light text-center">
+                            <p style="font-size: 10em; font-family: 'Alpha Digital';color: #ECAA3D;display: none;" id="floorDisplay"></p>
+                            <div class="spinner-border text-warning" role="status" style="font-size: 10em;margin-top: 0.5em;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-light text-center">
+                            <div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                                <!-- Then put toasts within -->
+                                <div class="toast text-success" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000">
+                                    <div class="toast-header">
+                                        <strong class="mr-auto">알림</strong>
+                                    </div>
+                                    <div class="toast-body">
+                                        엘레베이터를 호출 했습니다.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row h-25" style="min-height: 25vh;">
+                <div class="col-sm-12">
+                    <button type="button" class="btn" style="min-width: 100%;max-height: 25vh;boarder: 0px;" onclick="doCall();">
+						<img width="34%" src="img/meter.gif"/>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
