@@ -52,8 +52,19 @@
     var _getState = function getState() {
 		Android.getElevatorState();
         //TestCode
-        //callBack_getState(Math.floor(Math.random() * 28), 'up');
+        //testGetState();
     };
+
+    function testGetState() {
+        var wayNum = Math.floor(Math.random() * 3);
+        var way = 'stop';
+        if(2 == wayNum) {
+            way = 'down';
+        } else if(1 == wayNum) {
+            way = 'up';
+        }
+        callBack_getState(Math.floor(Math.random() * 28), way);
+    }
 
     $(document).ready(function() {
         _getState;
@@ -61,12 +72,16 @@
         _gGetStateHandler();
     });
 
-    function callBack_getState(floor, way) {
+    function callBack_getState(floor, way) {		
+		if('down' == way) {
+			$('#floorDisplay').css('color', '#00A7FF');
+		} else { // Up 또는 Stop 이면
+			$('#floorDisplay').css('color', '#ECAA3D');
+		}
 		$('#floorDisplay').text(floor);
-        if($('.spinner-border.text-warning').is(':visible')) {
-            $('.spinner-border.text-warning').fadeOut(1000, function() {
-				$('#floorDisplay').fadeIn(1000);    
-            });			
+        if($('.spinner-border.text-warning').is(':visible')) {            
+			$('.spinner-border.text-warning').hide();			    
+			$('#floorDisplay').fadeIn(1000);
         }        
         _gGetStateHandler();
         if('24' == floor && 'down' == way) {
@@ -99,9 +114,7 @@
         } else {
             $('button.btn').fadeIn(1000);
         }
-    }
-	
-	
+    }	
 </script>
 <body style="overflow: hidden;">
 <div class="container-fluid main_container text-white d-flex" style="min-height: 100vh;">
