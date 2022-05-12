@@ -94,15 +94,21 @@
         }
     }
 
-	async function doCall() {	            
-		$('button.btn > img').effect("bounce", "slow",function() {
-			$('button.btn').fadeOut(500, function() {
-				Android.getCall();
-			});
-		});        
+	// 중복 호출 방지
+	var _callMutext = false;
+	function doCall() {
+		if(!_callMutext) {
+			_callMutext = true;
+			$('button.btn > img').effect("bounce", "slow",function() {
+				$('button.btn').fadeOut(500, function() {
+					Android.getCall();
+				});
+			});        
+		}		
 	}
 
 	function callBack_getCall(result) {
+		_callMutext = false;
         if(result) {
             // 저사양 일 경우 깜빡임 방지
 			$('#bgDiv').addClass('bg-gif').promise().then(function() {
